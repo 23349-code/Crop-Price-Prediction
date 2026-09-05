@@ -1,1 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriPredict - Crop Price Prediction System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #ffd700;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #ffd700;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a.active::after {
+            width: 80%;
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem 0;
+        }
+
+        .page {
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 5rem 0;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 1.2rem 2.5rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ff5252, #ffb300);
+        }
+
+        /* Glass Card Effect */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(31, 38, 135, 0.5);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #0abde3);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 1rem 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Controls Section */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            color: white;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .control-group select, .control-group input {
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #ffd700;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .control-group select option {
+            background: #333;
+            color: white;
+            padding: 0.5rem;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin: 4rem 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+            top: -60%;
+            left: -60%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+        }
+
+        .feature-card h3 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-card p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 2.5rem 0;
+            position: relative;
+            height: 450px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, #f0f2f5, #e8ebf0);
+            border-radius: 15px;
+            border: 2px dashed #ddd;
+        }
+
+        /* Prediction Table */
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 2.5rem 0;
+            overflow-x: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #333;
+        }
+
+        th, td {
+            padding: 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            font-weight: 700;
+            color: #495057;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background: rgba(108, 117, 125, 0.1);
+        }
+
+        .confidence-bar {
+            width: 120px;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+
+        /* About Content */
+        .about-content {
+            color: white;
+            line-height: 1.8;
+        }
+
+        .about-content h1 {
+            color: #ffd700;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-align: center;
+        }
+
+        .about-content h2 {
+            color: #feca57;
+            margin: 2.5rem 0 1rem;
+            font-size: 1.5rem;
+            position: relative;
+            padding-left: 1rem;
+        }
+
+        .about-content h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border-radius: 2px;
+        }
+
+        .about-content ul {
+            padding-left: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .about-content li {
+            margin: 0.8rem 0;
+            position: relative;
+        }
+
+        .about-content li::marker {
+            color: #ffd700;
+        }
+
+        /* Contact Form */
+        .contact-form {
+            display: grid;
+            gap: 1.5rem;
+            max-width: 700px;
+            margin: 2.5rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: white;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #ffd700;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .form-group input::placeholder, .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-group select option {
+            background: #333;
+            color: white;
+        }
+
+        .contact-info {
+            margin-top: 3rem;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-info h3 {
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .contact-info p {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .text-gold { color: #ffd700; }
+        .mb-2 { margin-bottom: 2rem; }
+        .mt-2 { margin-top: 2rem; }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hover Effects */
+        .hover-glow:hover {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <div class="logo-icon">🌾</div>
+                AgriPredict
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#analytics">Analytics</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <section class="hero">
+                <h1>Smart Crop Price Prediction</h1>
+                <p>Harness the power of AI and data analytics to predict crop prices with precision and make informed agricultural decisions</p>
+                <button class="cta-button hover-scale">Start Predicting</button>
+            </section>
+
+            <section class="features-grid">
+                <div class="feature-card fade-in hover-glow">
+                    <div class="feature-icon">📊</div>
+                    <h3>Advanced Analytics</h3>
+                    <p>Comprehensive price analysis with historical trends, market insights, and statistical modeling for accurate forecasting</p>
+                </div>
+                <div class="feature-card fade-in hover-glow">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered Predictions</h3>
+                    <p>Machine learning algorithms trained on vast datasets to provide reliable price predictions with confidence intervals</p>
+                </div>
+                <div class="feature-card fade-in hover-glow">
+                    <div class="feature-icon">📱</div>
+                    <h3>Real-time Updates</h3>
+                    <p>Live market data integration and instant price predictions for better decision making in volatile markets</p>
+                </div>
+                <div class="feature-card fade-in hover-glow">
+                    <div class="feature-icon">🌾</div>
+                    <h3>Multi-Crop Support</h3>
+                    <p>Comprehensive support for various crops including cereals, pulses, vegetables, and cash crops</p>
+                </div>
+                <div class="feature-card fade-in hover-glow">
+                    <div class="feature-icon">📈</div>
+                    <h3>Market Insights</h3>
+                    <p>Detailed market analysis, trend predictions, and seasonal patterns for informed trading strategies</p>
+                </div>
+                <div class="feature-card fade-in hover-glow">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Price Alerts</h3>
+                    <p>Customizable notifications when crop prices reach your target levels or show significant changes</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page">
+            <div class="card slide-up">
+                <h2 class="text-gold mb-2 text-center">Crop Price Prediction Dashboard</h2>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="cropSelect">Select Crop:</label>
+                        <select id="cropSelect">
+                            <option value="Rice">Rice</option>
+                            <option value="Wheat">Wheat</option>
+                            <option value="Arhar">Arhar (Dal)</option>
+                            <option value="Potato">Potato</option>
+                            <option value="Tomato">Tomato</option>
+                            <option value="Onion">Onion</option>
+                            <option value="Sugar">Sugar</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="daysSelect">Prediction Period:</label>
+                        <select id="daysSelect">
+                            <option value="7">7 Days</option>
+                            <option value="15">15 Days</option>
+                            <option value="30" selected>30 Days</option>
+                            <option value="60">60 Days</option>
+                            <option value="90">90 Days</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="regionSelect">Region:</label>
+                        <select id="regionSelect">
+                            <option value="national">National Average</option>
+                            <option value="north">North India</option>
+                            <option value="south">South India</option>
+                            <option value="east">East India</option>
+                            <option value="west">West India</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>&nbsp;</label>
+                        <button class="cta-button hover-scale">Update Prediction</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card hover-glow">
+                        <div class="stat-label">Current Price</div>
+                        <div class="stat-value">₹16.50</div>
+                        <div class="stat-label">per kg</div>
+                    </div>
+                    <div class="stat-card hover-glow">
+                        <div class="stat-label">Predicted Price</div>
+                        <div class="stat-value">₹17.25</div>
+                        <div class="stat-label">in 30 days</div>
+                    </div>
+                    <div class="stat-card hover-glow">
+                        <div class="stat-label">Price Change</div>
+                        <div class="stat-value">+4.5%</div>
+                        <div class="stat-label">expected</div>
+                    </div>
+                    <div class="stat-card hover-glow">
+                        <div class="stat-label">Confidence</div>
+                        <div class="stat-value">87%</div>
+                        <div class="stat-label">accuracy</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container hover-glow">
+                <div class="chart-placeholder">
+                    📈 Interactive Price Chart Will Appear Here
+                </div>
+            </div>
+
+            <div class="table-container hover-glow">
+                <h3 class="mb-2">Detailed Predictions</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Predicted Price (₹)</th>
+                            <th>Confidence</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2025-09-13</td>
+                            <td>₹16.75</td>
+                            <td>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 95%;"></div>
+                                </div>
+                                95%
+                            </td>
+                            <td>📈 Rising</td>
+                        </tr>
+                        <tr>
+                            <td>2025-09-20</td>
+                            <td>₹17.20</td>
+                            <td>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 89%;"></div>
+                                </div>
+                                89%
+                            </td>
+                            <td>📈 Rising</td>
+                        </tr>
+                        <tr>
+                            <td>2025-09-27</td>
+                            <td>₹17.45</td>
+                            <td>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 82%;"></div>
+                                </div>
+                                82%
+                            </td>
+                            <td>📈 Rising</td>
+                        </tr>
+                        <tr>
+                            <td>2025-10-04</td>
+                            <td>₹17.80</td>
+                            <td>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 76%;"></div>
+                                </div>
+                                76%
+                            </td>
+                            <td>📈 Rising</td>
+                        </tr>
+                        <tr>
+                            <td>2025-10-12</td>
+                            <td>₹18.10</td>
+                            <td>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 71%;"></div>
+                                </div>
+                                71%
+                            </td>
+                            <td>📊 Stable</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div id="analytics" class="page">
+            <div class="card slide-up">
+                <h2 class="text-gold mb-2 text-center">Market Analytics</h2>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="analysisType">Analysis Type:</label>
+                        <select id="analysisType">
+                            <option value="comparison">Crop Comparison</option>
+                            <option value="seasonal">Seasonal Trends</option>
+                            <option value="volatility">Price Volatility</option>
+                            <option value="correlation">Price Correlation</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="timeRange">Time Range:</label>
+                        <select id="timeRange">
+                            <option value="1m">1 Month</option>
+                            <option value="3m">3 Months</option>
+                            <option value="6m" selected>6 Months</option>
+                            <option value="1y">1 Year</option>
+                            <option value="all">All Time</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="marketType">Market Type:</label>
+                        <select id="marketType">
+                            <option value="wholesale">Wholesale</option>
+                            <option value="retail">Retail</option>
+                            <option value="commodity">Commodity Exchange</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>&nbsp;</label>
+                        <button class="cta-button hover-scale">Generate Analysis</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card hover-glow">
+                        <div class="stat-label">Most Volatile</div>
+                        <div class="stat-value">Tomato</div>
+                        <div class="stat-label">±23% variance</div>
+                    </div>
+                    <div class="stat-card hover-glow">
+                        <div class="stat-label">Most Stable</div>
+                        <div class="stat-value">Rice</div>
+                        <div class="stat-label">±5% variance</div>
+                    </div>
+                    <div class="stat-card hover-glow">
+                        <div class="stat-label">Highest Growth</div>
+                        <div class="stat-value">Wheat</div>
+                        <div class="stat-label">+15% this month</div>
+                    </div>
+                    <div class="stat-card hover-glow">
+                        <div class="stat-label">Market Cap</div>
+                        <div class="stat-value">₹2.3T</div>
+                        <div class="stat-label">total value</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container hover-glow">
+                <div class="chart-placeholder">
+                    📊 Market Analytics Chart Will Display Here
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="text-gold mb-2">Market Insights & Recommendations</h3>
+                <div style="color: white; line-height: 1.8;">
+                    <h4 style="color: #feca57; margin: 1.5rem 0 1rem;">📈 Key Market Trends:</h4>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li>Rice prices showing steady upward trend due to seasonal demand increase</li>
+                        <li>Tomato prices experiencing high volatility due to unpredictable weather patterns</li>
+                        <li>Wheat market stabilizing after post-harvest price fluctuations</li>
+                        <li>Pulse prices expected to rise with approaching monsoon season</li>
+                        <li>Sugar prices remain stable with adequate supply from recent harvest</li>
+                    </ul>
+                    
+                    <h4 style="color: #feca57; margin: 1.5rem 0 1rem;">💡 Trading Recommendations:</h4>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li>Consider long positions in wheat and rice for stable, predictable returns</li>
+                        <li>Exercise caution with vegetable trades due to high weather sensitivity</li>
+                        <li>Monitor government policy announcements affecting minimum support prices</li>
+                        <li>Diversify portfolio across different crop categories to minimize risk</li>
+                        <li>Watch for seasonal patterns in pulse demand during festival periods</li>
+                    </ul>
+
+                    <h4 style="color: #feca57; margin: 1.5rem 0 1rem;">⚠ Risk Factors:</h4>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li>Monsoon irregularities could impact kharif crop prices significantly</li>
+                        <li>Global commodity price fluctuations affecting import-dependent crops</li>
+                        <li>Transportation strikes or fuel price changes impacting supply chains</li>
+                        <li>Storage and post-harvest loss issues affecting market supply</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about" class="page">
+            <div class="card slide-up">
+                <div class="about-content">
+                    <h1>About AgriPredict</h1>
+                    
+                    <p>AgriPredict is a cutting-edge agricultural technology platform that leverages artificial intelligence and machine learning to provide accurate crop price predictions. Our mission is to empower farmers, traders, and agricultural businesses with data-driven insights for better decision making in the volatile agricultural commodity markets.</p>
+
+                    <h2>🤖 Our Advanced Technology</h2>
+                    <p>We employ state-of-the-art statistical models and machine learning algorithms to analyze complex market patterns and deliver reliable predictions:</p>
+                    <ul>
+                        <li><strong>Linear Regression Models</strong> - For identifying and analyzing long-term price trends</li>
+                        <li><strong>ARIMA Time Series</strong> - Advanced forecasting for seasonal and cyclical patterns</li>
+                        <li><strong>Neural Networks</strong> - Deep learning for complex pattern recognition and non-linear relationships</li>
+                        <li><strong>Ensemble Methods</strong> - Combining multiple algorithms for improved prediction accuracy</li>
+                        <li><strong>Support Vector Machines</strong> - For handling high-dimensional data and volatility analysis</li>
+                        <li><strong>Random Forest</strong> - Managing multiple variables and feature importance ranking</li>
+                    </ul>
+
+                    <h2>📊 Comprehensive Data Sources</h2>
+                    <p>Our predictions are built on a foundation of comprehensive, real-time data from multiple reliable sources:</p>
+                    <ul>
+                        <li><strong>Historical Market Data</strong> - Over 15 years of price data from major agricultural markets across India</li>
+                        <li><strong>Weather & Climate</strong> - Real-time
