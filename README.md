@@ -2,8 +2,6 @@
 
 A cutting-edge agricultural technology platform that leverages artificial intelligence and machine learning to provide accurate crop price predictions.
 
-![AgriPredict Screenshot](https://via.placeholder.com/800x400?text=AgriPredict+Dashboard)
-
 ## 🚀 Features
 
 - **AI-Powered Predictions**: Machine learning algorithms for reliable price forecasting
@@ -19,10 +17,6 @@ A cutting-edge agricultural technology platform that leverages artificial intell
 - **Styling**: CSS3 with Glassmorphism effects, Gradients, Animations
 - **Charts**: Chart.js (for interactive visualizations)
 - **Responsive**: Mobile-first design with flexible grid layouts
-
-## 🎯 Live Demo
-
-[View Live Demo](https://your-username.github.io/crop-price-prediction/)
 
 ## 📦 Installation
 
